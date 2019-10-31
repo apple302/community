@@ -2,6 +2,7 @@ package com.apple.shen.community.controller;
 
 import com.apple.shen.community.dto.AccessTokenDTO;
 import com.apple.shen.community.dto.GithubUser;
+
 import com.apple.shen.community.mapper.UserMapper;
 import com.apple.shen.community.model.User;
 import com.apple.shen.community.provider.GithubProvider;
@@ -21,6 +22,9 @@ public class AuthorizeController {
     @Autowired
     private GithubProvider githubProvider;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Value("${github.client.id}")
     private String clientId;
 
@@ -29,9 +33,6 @@ public class AuthorizeController {
 
     @Value("${github.redirect.uri}")
     private String redirectUri;
-
-    @Autowired
-    private UserMapper userMapper;
 
     @GetMapping("/callback")
     public String callback(@RequestParam(name = "code") String code,
@@ -53,6 +54,7 @@ public class AuthorizeController {
             user.setName(githubUser.getName());
             user.setGmtCreate(System.currentTimeMillis());
             user.setGmtModified(user.getGmtCreate());
+            user.setAvatarUrl(githubUser.getAvatarUrl());
             userMapper.insert(user);
             response.addCookie(new Cookie("token",token));
 //            登录成功，写cookie和session
