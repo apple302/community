@@ -24,6 +24,7 @@ public class GithubProvider {
             String s = response.body().string();
 //            s = "access_token=xxx&scope=user&token_type=bearer"
             String token = s.split("&")[0].split("=")[1];
+            System.out.println("gihub token: " + token);
             return token;
         } catch (Exception e) {
             e.printStackTrace();
