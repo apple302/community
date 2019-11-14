@@ -16,7 +16,11 @@
 [Git下载](https://git-scm.com/download)  
 [Visual-paradigm](https://www.visual-paradigm.com)   
 [Flyway](https://flywaydb.org/getstarted/firststeps/maven)    
-[Lombok](https://projectlombok.org/)  
+[Lombok](https://projectlombok.org/)   
+[OctTree](https://www.octotree.io/)   
+[Table_of_contents_sidebar](https://chrome.google.com/webstore/detail/table-of-contents-sidebar/ohohkfheangmbedkgechjkmbepeikkej)
+[Live_Reload](https://chrome.google.com/webstore/detail/jnihajbhpnppcggbcgedagnkighmdlei)   
+[PostMan](https://chrome.google.com/webstore/detail/coohjcphdfgbiolnekdpbcijmhambjff)  
 
 ## 脚本
 ```sql

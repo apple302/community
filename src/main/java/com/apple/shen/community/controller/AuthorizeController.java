@@ -2,12 +2,9 @@ package com.apple.shen.community.controller;
 
 import com.apple.shen.community.dto.AccessTokenDTO;
 import com.apple.shen.community.dto.GithubUser;
-
-import com.apple.shen.community.mapper.UserMapper;
 import com.apple.shen.community.model.User;
 import com.apple.shen.community.provider.GithubProvider;
 import com.apple.shen.community.service.UserService;
-import com.sun.deploy.net.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
