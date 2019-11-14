@@ -4,6 +4,7 @@ import com.apple.shen.community.dto.PaginationDTO;
 import com.apple.shen.community.dto.QuestionDTO;
 import com.apple.shen.community.exception.CustomizeErrorCode;
 import com.apple.shen.community.exception.CustomizeException;
+import com.apple.shen.community.mapper.QuestionExtMapper;
 import com.apple.shen.community.mapper.QuestionMapper;
 import com.apple.shen.community.mapper.UserMapper;
 import com.apple.shen.community.model.Question;
@@ -25,6 +26,9 @@ public class QuestionService {
 
     @Autowired
     private QuestionMapper questionMapper;
+
+    @Autowired
+    private QuestionExtMapper questionExtMapper;
 
     public PaginationDTO list(Integer page, Integer size) {
 
@@ -112,5 +116,12 @@ public class QuestionService {
             question.setGmtCreate(question.getGmtCreate());
             questionMapper.insert(question);
         }
+    }
+
+    public void incView(Integer id) {
+        Question question = new Question();
+        question.setId(id);
+        question.setViewCount(1);
+        questionExtMapper.incView(question);
     }
 }
