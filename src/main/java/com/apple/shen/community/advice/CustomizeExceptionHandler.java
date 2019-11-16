@@ -19,7 +19,7 @@ public class CustomizeExceptionHandler {
     @ExceptionHandler(Exception.class)
     ModelAndView handle(Throwable e, Model model, HttpServletRequest request, HttpServletResponse response) {
         String contentType = request.getContentType();
-        if("application".equals(contentType)){
+        if("application/json".equals(contentType)){
             //返回 JSON
             ResultDTO resultDTO;
             if (e instanceof CustomizeException) {
