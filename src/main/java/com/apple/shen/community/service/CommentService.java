@@ -2,6 +2,8 @@ package com.apple.shen.community.service;
 
 import com.apple.shen.community.dto.CommentDTO;
 import com.apple.shen.community.enums.CommentTypeEnum;
+import com.apple.shen.community.enums.NotificationStatusEnum;
+import com.apple.shen.community.enums.NotificationTypeEnum;
 import com.apple.shen.community.exception.CustomizeErrorCode;
 import com.apple.shen.community.exception.CustomizeException;
 import com.apple.shen.community.mapper.*;
@@ -35,34 +37,61 @@ public class CommentService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private NotificationMapper notificationMapper;
+
     @Transactional
-    public void insert(Comment comment) {
-        if(comment.getParentId() == null || comment.getParentId() == 0){
+    public void insert(Comment comment, User commentator) {
+        if (comment.getParentId() == null || comment.getParentId() == 0) {
             throw new CustomizeException(CustomizeErrorCode.TARGET_PARAM_NOT_FOUND);
         }
-        if(comment.getType() == null || !CommentTypeEnum.isExit(comment.getType())){
+        if (comment.getType() == null || !CommentTypeEnum.isExit(comment.getType())) {
             throw new CustomizeException(CustomizeErrorCode.TYPE_PARAM_WRONG);
         }
 
-        if(comment.getType() == CommentTypeEnum.COMMENT.getType()){
+        if (comment.getType() == CommentTypeEnum.COMMENT.getType()) {
             //回复评论
             Comment dbComment = commentMapper.selectByPrimaryKey(comment.getParentId());
-            if(dbComment == null){
+            if (dbComment == null) {
                 throw new CustomizeException(CustomizeErrorCode.COMMENT_NOT_FOUND);
             }
+            Question question = questionMapper.selectByPrimaryKey(dbComment.getParentId());
+            if (question == null) {
+                throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
+            }
+
             commentMapper.insert(comment);
             dbComment.setCommentCount(1);
             commentExtMapper.incCommentCount(dbComment);
-        }else{
+
+            //创建通知
+            createNotify(comment, dbComment.getCommentator(), commentator.getName(), question.getTitle(), NotificationTypeEnum.REPLY_COMMENT, question.getId());
+        } else {
             //回复问题
-            Question dbQuestion = questionMapper.selectByPrimaryKey(comment.getParentId());
-            if(dbQuestion == null){
+            Question question = questionMapper.selectByPrimaryKey(comment.getParentId());
+            if (question == null) {
                 throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
             }
             commentMapper.insert(comment);
-            dbQuestion.setCommentCount(1);
-            questionExtMapper.incCommentCount(dbQuestion);
+            question.setCommentCount(1);
+            questionExtMapper.incCommentCount(question);
+
+            //创建通知
+            createNotify(comment, question.getCreator(), commentator.getName(), question.getTitle(), NotificationTypeEnum.REPLY_QUESTION, question.getId());
         }
+    }
+
+    private void createNotify(Comment comment, Long receiver, String notifierName, String outerTitle, NotificationTypeEnum notificationType, Long outerId) {
+        Notification notification = new Notification();
+        notification.setGmtCreate(System.currentTimeMillis());
+        notification.setType(notificationType.getType());
+        notification.setOuterid(outerId);
+        notification.setNotifier(comment.getCommentator());
+        notification.setStatus(NotificationStatusEnum.UNREAD.getStatus());
+        notification.setReceiver(receiver);
+        notification.setNotifierName(notifierName);
+        notification.setOuterTitle(outerTitle);
+        notificationMapper.insert(notification);
     }
 
     public List<CommentDTO> listByTargetId(Long id, CommentTypeEnum type) {
@@ -72,7 +101,7 @@ public class CommentService {
                 .andTypeEqualTo(type.getType());
         commentExample.setOrderByClause("gmt_Create desc");
         List<Comment> comments = commentMapper.selectByExample(commentExample);
-        if(comments == null || comments.size() == 0){
+        if (comments == null || comments.size() == 0) {
             return new ArrayList<>();
         }
         //获得去重的评论人ID集合

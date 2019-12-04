@@ -1,7 +1,5 @@
 package com.apple.shen.community.enums;
 
-import com.apple.shen.community.model.Comment;
-
 public enum  CommentTypeEnum {
     QUESTION(1),
     COMMENT(2);
